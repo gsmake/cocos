@@ -1,11 +1,15 @@
 local fs            = require "lemoon.fs"
 local class         = require "lemoon.class"
 local filepath      = require "lemoon.filepath"
-local console       = class.new("lemoon.log","console")
 local lunajson      = require "lunajson"
 
 local name          = "github.com/cocos2d/cocos2d-x"
 local version       = "cocos2d-x-3.10"
+
+print(package.path)
+
+local curl          = class.new("curl")
+local console       = class.new("lemoon.log","console")
 
 
 local init = function(self)
