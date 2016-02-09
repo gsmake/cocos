@@ -6,8 +6,6 @@ local lunajson      = require "lunajson"
 local name          = "github.com/cocos2d/cocos2d-x"
 local version       = "cocos2d-x-3.10"
 
-print(package.path)
-
 local curl          = class.new("curl")
 local console       = class.new("lemoon.log","console")
 
@@ -38,18 +36,16 @@ task.cocosnew = function(self)
 
     local externalversion = ""
 
-    print(externalconfig)
-
     if fs.exists(externalconfig) then
         local fp = io.open(externalconfig,"r")
         local content = fp:read("a")
         externalversion = lunajson.decode(content)["version"]
     end
 
-    console:I("cocos name            : %s",cocos.name)
-    console:I("cocos version         : %s",cocos.version)
-    console:I("cocos path            : %s",source_path)
-    console:I("cocos external config : %s",externalversion)
+    print(string.format("cocos name            : %s",cocos.name))
+    print(string.format("cocos version         : %s",cocos.version))
+    print(string.format("cocos path            : %s",source_path))
+    print(string.format("cocos external config : %s",externalversion))
 end
 task.cocosnew.Desc = "init/prepare the cocos project"
 
@@ -59,20 +55,20 @@ task.cocospath = function(self,path)
 
     local repo      = self.Owner.Loader.GSMake.Repo
 
-    console:I(
+    print(string.format(
                 "config gsmake-cocos\nname :%s\nversion :%s",
-                cocos.name,cocos.version)
+                cocos.name,cocos.version))
 
     if not path then
         local path,ok = repo:query_source(cocos.name,cocos.version)
         if not ok then
             console:E("cocos source not found !!!!!!!",path)
         else
-            console:I("path :%s",path)
+            print(string.format("path :%s",path))
         end
     else
         local path = filepath.abs(path)
-        console:I("set new path :%s",path)
+        print(string.format("set new path :%s",path))
         repo:save_source(cocos.name,cocos.version,path,path,true)
     end
 
