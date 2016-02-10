@@ -1,4 +1,5 @@
 local fs            = require "lemoon.fs"
+local sys           = require "lemoon.sys"
 local class         = require "lemoon.class"
 local filepath      = require "lemoon.filepath"
 local lunajson      = require "lunajson"
@@ -9,6 +10,7 @@ local version       = "cocos2d-x-3.10"
 local curl          = class.new("curl")
 local console       = class.new("lemoon.log","console")
 
+local cmake = nil
 
 local init = function(self)
     cocos    = self.Owner.Properties.cocos
@@ -20,19 +22,26 @@ local init = function(self)
     if cocos.version == nil then
         cocos.version = version
     end
+
+    local ok, cmakepath = sys.lookup("cmake")
+
+    if not ok then
+        throw("check the cmake command line tools -- failed, not found")
+    end
+
+    cmake = cmakepath
 end
 
-local cmake = nil
 
--- sync cocos repo
-task.cocosnew = function(self)
+
+local checkcocosenv = function(self)
     init(self)
 
     local sync = self.Owner.Loader.Sync
 
-    source_path = sync:sync(cocos.name,cocos.version)
+    sourcepath = sync:sync(cocos.name,cocos.version)
 
-    local externalconfig = filepath.join(source_path,"external/config.json")
+    local externalconfig = filepath.join(sourcepath,"external/config.json")
 
     local externalversion = ""
 
@@ -41,11 +50,24 @@ task.cocosnew = function(self)
         local content = fp:read("a")
         externalversion = lunajson.decode(content)["version"]
     end
+    -- now check the external libs
+    local externalname = "github.com/cocos2d/cocos2d-x-3rd-party-libs-bin"
+    externalpath = sync:sync(externalname,externalversion)
 
     print(string.format("cocos name            : %s",cocos.name))
     print(string.format("cocos version         : %s",cocos.version))
-    print(string.format("cocos path            : %s",source_path))
-    print(string.format("cocos external config : %s",externalversion))
+    print(string.format("cocos path            : %s",sourcepath))
+    print(string.format("cocos ext version     : %s",externalversion))
+    print(string.format("cocos ext path        : %s",externalpath))
+end
+
+-- sync cocos repo
+task.cocosnew = function(self)
+
+    checkcocosenv(self)
+
+    class.new("cocos",self,sourcepath,externalpath):makeproject()
+
 end
 task.cocosnew.Desc = "init/prepare the cocos project"
 
