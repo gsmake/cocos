@@ -49,7 +49,7 @@ include_directories(
 
 @{{ if targethost == "Windows" then }}
 add_definitions(
-    /DUNICODE /D_UNICODE /DCC_STATIC /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701
+    /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701
     /wd4189 /wd4389 /wd4706 /wd4245 /wd4267 /wd4018 /wd4702 /wd4310
     /wd4018 /wd4804 /wd4996 /wd4456 /wd4099 /wd4611 /wd4800 /wd4505 /wd4477 /wd4703)
 @{{ else }}
@@ -59,7 +59,12 @@ add_definitions(-DCC_STATIC)
 add_library(
 @{{name}}
 
+@{{ if TargetHost == "Windows" then}}
+SHARED
+@{{ else }}
 STATIC
+@{{ end }}
+
 ${header_files}
 ${src_files}
 )
