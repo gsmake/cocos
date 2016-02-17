@@ -7,7 +7,6 @@ local lunajson      = require "lunajson"
 local name          = "github.com/cocos2d/cocos2d-x"
 local version       = "cocos2d-x-3.10"
 
-local curl          = class.new("curl")
 local console       = class.new("lemoon.log","console")
 
 local cmake = nil
@@ -66,7 +65,16 @@ task.cocosnew = function(self)
 
     checkcocosenv(self)
 
-    class.new("cocos",self,sourcepath,externalpath):makeproject()
+    local config = dofile(filepath.join(self.Package.Path,"/src/plugin/lua/config.lua"))
+
+    local cocos = self.Owner.Properties.cocos
+
+    for name,module in pairs(cocos.modules or {}) do
+
+        config.cocos2d.modules[name] = module
+    end
+
+    class.new("cocos",self,config,sourcepath,externalpath):makeproject()
 
 end
 task.cocosnew.Desc = "init/prepare the cocos project"

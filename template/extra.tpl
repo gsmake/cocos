@@ -49,35 +49,18 @@ include_directories(
 
 @{{ if targethost == "Windows" then }}
 add_definitions(
-    /D_USRDLL /DCOCOS2DXWIN32_EXPORTS /D_SCL_SECURE_NO_WARNINGS /DUNICODE
-    /D_USE3DDLL
-    /D_EXPORT_DLL_
-    /D_USRSTUDIODLL
-    /D_USREXDLL
-    /D_USEGUIDLL
-    /DCC_ENABLE_CHIPMUNK_INTEGRATION=1
-    /D_UNICODE /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701 /wd4302
-    /wd4189 /wd4389 /wd4706 /wd4245 /wd4267 /wd4018 /wd4702 /wd4310
+    /D_UNICODE /DCC_STATIC /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701 /wd4819
+    /wd4458 /wd4101
+    /wd4189 /wd4389 /wd4706 /wd4245 /wd4267 /wd4018 /wd4702 /wd4310 /wd4316 /wd4305 /wd4127 /wd4463
     /wd4018 /wd4804 /wd4996 /wd4456 /wd4099 /wd4611 /wd4800 /wd4505 /wd4477 /wd4703 /wd4251)
 @{{ else }}
 add_definitions(-DCC_STATIC)
 @{{ end }}
 
-link_directories(
-@{{ for _,src in ipairs(linkdirs) do }}
-@{{src}}
-
-@{{ end }}
-)
-
 add_library(
 @{{name}}
 
-@{{ if targethost == "Windows" then}}
-SHARED
-@{{ else }}
 STATIC
-@{{ end }}
 
 ${header_files}
 ${src_files}
@@ -96,17 +79,6 @@ pthread dl
 @{{end}}
 
 )
-
-add_dependencies(
-@{{name}}
-
-@{{ for _,src in ipairs(deps) do }}
-@{{src}}
-
-@{{ end }}
-)
-
-
 
 set_target_properties(
         @{{name}}
