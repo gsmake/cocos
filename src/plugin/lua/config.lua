@@ -19,6 +19,8 @@ return {
             "jpeg";
             "tiff";
             "webp";
+            "recast";
+            "curl";
             win32 = { "win32-specific" };
         };
 
@@ -34,7 +36,7 @@ return {
             };
 
             audio = {
-                include = { "./include" };
+                includes = { "./include" };
                 src = {
                     "./";
                     android     = {"./android","./adnroid/jni"};
@@ -75,6 +77,43 @@ return {
             storage = {
                 src = {
                     android = {"./local-storage"}
+                }
+            };
+
+            ["editor-support/cocostudio"] = {
+                includes = {"../"};
+
+                src = {
+                    "./", "./ActionTimeline",
+                    "./WidgetReader",
+                    "./WidgetReader/ArmatureNodeReader",
+                    "./WidgetReader/ButtonReader",
+                    "./WidgetReader/CheckBoxReader",
+                    "./WidgetReader/ComAudioReader",
+                    "./WidgetReader/GameMapReader",
+                    "./WidgetReader/GameNode3DReader",
+                    "./WidgetReader/ImageViewReader",
+                    "./WidgetReader/LayoutReader",
+                    "./WidgetReader/Light3DReader",
+                    "./WidgetReader/ListViewReader",
+                    "./WidgetReader/LoadingBarReader",
+                    "./WidgetReader/Node3DReader",
+                    "./WidgetReader/NodeReader",
+                    "./WidgetReader/PageViewReader",
+                    "./WidgetReader/Particle3DReader",
+                    "./WidgetReader/ParticleReader",
+                    "./WidgetReader/ProjectNodeReader",
+                    "./WidgetReader/ScrollViewReader",
+                    "./WidgetReader/SingleNodeReader",
+                    "./WidgetReader/SkeletonReader",
+                    "./WidgetReader/SliderReader",
+                    "./WidgetReader/Sprite3DReader",
+                    "./WidgetReader/SpriteReader",
+                    "./WidgetReader/TextAtlasReader",
+                    "./WidgetReader/TextBMFontReader",
+                    "./WidgetReader/TextFieldReader",
+                    "./WidgetReader/TextReader",
+                    "./WidgetReader/UserCameraReader"
                 }
             };
 
@@ -189,6 +228,10 @@ return {
             vslibtrack = true;
         };
 
+        ["curl"] = {
+            prebuilt = true;
+        };
+
         ["chipmunk"] = {
             includes = {"./include","./include/chipmunk"};
             prebuilt = true;
@@ -206,8 +249,46 @@ return {
         ["bullet"] = {
             includes = {"..","./MiniCL"};
             src = {
-                "./BulletCollision","./BulletDynamics","./BulletMultiThreaded",
-                "./BulletSoftBody","./LinearMath","./MiniCL"
+                "./BulletCollision/BroadphaseCollision",
+                "./BulletCollision/CollisionDispatch",
+                "./BulletCollision/CollisionShapes","./BulletCollision/Gimpact",
+                "./BulletCollision/NarrowPhaseCollision",
+                "./BulletDynamics","./BulletDynamics/Character","./BulletDynamics/ConstraintSolver","./BulletDynamics/Dynamics",
+                "./BulletDynamics/Featherstone","./BulletDynamics/MLCPSolvers","./BulletDynamics/Vehicle",
+                "./BulletMultiThreaded","./BulletMultiThreaded/GpuSoftBodySolvers","./BulletMultiThreaded/SpuNarrowPhaseCollisionTask","./BulletMultiThreaded/SpuSampleTask",
+                "./BulletSoftBody",
+                "./LinearMath",
+                "./MiniCL","./MiniCL/MiniCLTask"
+            }
+        };
+
+        ["recast"] = {
+            includes = {".."};
+            src = {
+                "./DebugUtils","./Detour","./DetourCrowd",
+                "./DetourTileCache","./fastlz","./Recast"
+            }
+        }
+    };
+
+    libsimulator = {
+        includes = {
+            "./lib";
+            "./lib/protobuf-lite";
+            win32 = {"./proj.win32"}
+        };
+        src = {
+            "./lib",
+            "./lib/network",
+            "./lib/ProjectConfig",
+            "./lib/runtime",
+
+            win32 = {
+                "./lib/platform/win32";
+                "./proj.win32";
+            },
+            mac   = {
+                "./lib/platform/mac"
             }
         }
     };

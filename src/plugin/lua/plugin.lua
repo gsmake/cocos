@@ -74,8 +74,24 @@ task.cocosnew = function(self)
         config.cocos2d.modules[name] = module
     end
 
-    class.new("cocos",self,config,sourcepath,externalpath):makeproject()
+    local cocos = class.new("cocos",self,config,sourcepath,externalpath)
+    cocos:makeproject()
 
+    local cmake_build_dir = filepath.join(cocos.projectdir,".build")
+    if not fs.exists(cmake_build_dir) then
+        fs.mkdir(cmake_build_dir,true)
+    end
+
+    local exec = sys.exec(cmake)
+
+    exec:dir(cmake_build_dir)
+
+    exec:start("..")
+
+    if 0 ~= exec:wait() then
+        console:E("run cmake config -- failed")
+        return true
+    end
 end
 task.cocosnew.Desc = "init/prepare the cocos project"
 

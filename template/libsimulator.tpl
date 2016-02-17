@@ -49,8 +49,15 @@ include_directories(
 
 @{{ if targethost == "Windows" then }}
 add_definitions(
-    /D_UNICODE /DCC_STATIC /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701 /wd4819
-    /wd4458 /wd4101 /wd4359 /wd4437 /wd4457 /wd4473
+    /DSTRICT
+    /DGLFW_EXPOSE_NATIVE_WIN32
+    /DGLFW_EXPOSE_NATIVE_WGL
+    /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
+    /D_SCL_SECURE_NO_WARNINGS_DEBUG
+    /D_USRLIBSIMSTATIC
+    /D_UNICODE
+    /D_USRDLL /D_CRT_SECURE_NO_WARNINGS /wd4100 /wd4244 /wd4701 /wd4819
+    /wd4458 /wd4101 /wd4359 /wd4437 /wd4457 /wd4473 /wd4459
     /wd4189 /wd4389 /wd4706 /wd4245 /wd4267 /wd4018 /wd4702 /wd4310 /wd4316 /wd4305 /wd4127 /wd4463
     /wd4018 /wd4804 /wd4996 /wd4456 /wd4099 /wd4611 /wd4800 /wd4505 /wd4477 /wd4703 /wd4251)
 @{{ else }}
@@ -78,6 +85,12 @@ target_link_libraries(
 pthread dl
 @{{end}}
 
+)
+
+add_dependencies(
+@{{name}}
+
+cocos2d
 )
 
 set_target_properties(

@@ -110,19 +110,21 @@ local searchdir = function(path,headers,srcs)
     end)
 end
 
-function module:makecocos2d(dependencies)
+function module:makecocos2d(includes,dependencies)
 
     local libcocosdir   = filepath.join(self.projectdir,"cocos2d")
     local srcroot       = filepath.join(self.srcpath,"cocos")
     local srcfiles      = {}
     local headerfiles   = {}
-    local includes      = {
-        filepath.join(self.srcpath,"cocos/platform");
-    }
     local libs          = {}
+
+    table.insert(includes,filepath.join(self.srcpath,"cocos"))
+    table.insert(includes,filepath.join(self.srcpath,"cocos/platform"))
 
     if self.platform == "win32" then
         table.insert(libs,"opengl32.lib")
+        table.insert(libs,"ws2_32.lib")
+        table.insert(libs,"winmm.lib")
     end
 
     if not fs.exists(libcocosdir) then
@@ -173,7 +175,7 @@ function module:makecocos2d(dependencies)
             end
         end
 
-        for _,dir in ipairs(module.include or {}) do
+        for _,dir in ipairs(module.includes or {}) do
             local path = filepath.join(srcroot,name,dir)
             table.insert(includes,path)
         end
@@ -397,11 +399,118 @@ function module:makedep(name,includes,libs)
     end
 end
 
+function module:makelibsimulator(includes)
+    local config = self.config.libsimulator
+
+    local srcroot               = filepath.join(self.srcpath,"tools/simulator/libsimulator")
+    local srcfiles              = {}
+    local headerfiles           = {}
+    local includes              = {
+        filepath.join(self.srcpath,"cocos"),
+        filepath.join(self.srcpath,"cocos/platform"),
+        filepath.join(self.srcpath,"cocos/platform/desktop"),
+        filepath.join(self.srcpath,"cocos/editor-support"),
+        self.extpath,
+        filepath.join(self.extpath,"chipmunk/include/chipmunk"),
+        filepath.join(self.extpath,"curl/include",self.platform),
+        filepath.join(self.extpath,"glfw3/include",self.platform)
+    }
+
+    if self.platform == "win32" then
+        table.insert(includes,filepath.join(self.extpath,"win32-specific/zlib/include"))
+        table.insert(includes,filepath.join(self.extpath,"win32-specific/gles/include/OGLES"))
+    else
+        table.insert(includes,filepath.join(self.extpath,"zlib/include"))
+    end
+
+    if not config.includes then
+        config.includes = { "." }
+    end
+
+    if not config.src then
+        config.src = { "." }
+    end
+
+    for _,dir in ipairs(config.includes) do
+        local include = filepath.join(srcroot,dir)
+        table.insert(includes,1,include)
+    end
+
+    for _,dir in ipairs(config.includes[self.platform] or {}) do
+        local include = filepath.join(srcroot,dir)
+        table.insert(includes,1,include)
+    end
+
+    for _,dir in ipairs(config.src) do
+        local path = filepath.join(srcroot,dir)
+        fs.list(path,function(entry)
+            if entry == "." or entry == ".." then
+                return
+            end
+
+            local newpath = filepath.join(path,entry)
+
+            if header_exts[filepath.ext(entry)] then
+                table.insert(headerfiles,newpath)
+            elseif source_exts[filepath.ext(entry)] then
+                if entry == "Widget_mac.mm" then
+                    if self.platform == "mac" then
+                        table.insert(srcfiles,newpath)
+                    end
+                else
+                    table.insert(srcfiles,newpath)
+                end
+            end
+        end)
+    end
+
+    for _,dir in ipairs(config.src[self.platform] or {}) do
+        local path = filepath.join(srcroot,dir)
+        fs.list(path,function(entry)
+            if entry == "." or entry == ".." then
+                return
+            end
+
+            local newpath = filepath.join(path,entry)
+
+            if header_exts[filepath.ext(entry)] then
+                table.insert(headerfiles,newpath)
+            elseif source_exts[filepath.ext(entry)] then
+                if entry ~= "SimulatorWin.cpp" then
+                    table.insert(srcfiles,newpath)
+                end
+            end
+        end)
+    end
+
+    local outputdir = filepath.join(self.projectdir,"libsimulator")
+
+    if not fs.exists(outputdir) then
+        fs.mkdir(outputdir,true)
+    end
+
+    self.codegen:render(filepath.join(outputdir,"CMakeLists.txt"),"libsimulator.tpl",{
+        name                    = "libsimulator";
+        srcfiles                = srcfiles;
+        headerfiles             = headerfiles;
+        srcroot                 = srcroot;
+        targethost              = self.targethost;
+        includes                = includes;
+        libs                    = {};
+        outputdir               = self.builddir
+    })
+end
+
 function module:makeproject()
 
+    local includes = {}
     local deps = {}
 
-    self:makecocos2d(deps)
+    self:makecocos2d(includes,deps)
+
+    self:makelibsimulator()
+
+    table.insert(deps,"libsimulator")
 
     local cmakefilepath = filepath.join(self.projectdir,"CMakeLists.txt")
 
